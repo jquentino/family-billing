@@ -1,26 +1,30 @@
+import os
 import smtplib
 from datetime import datetime
-import functions_framework
 from email.mime.text import MIMEText
-from config import config_vars
-import os
 
+import functions_framework
+from flask import Request, typing
+
+APP_EMAIL_ADDRESS = os.getenv("APP_EMAIL_ADDRESS")
 APP_EMAIL_PASSWORD = os.getenv("APP_EMAIL_PASSWORD")
+PIX_KEY = os.getenv("PIX_KEY")
+
 
 @functions_framework.http
-def send_email(request):
+def send_email(request: Request) -> typing.ResponseReturnValue:
     # Using Gmail SMTP (Make sure to enable Less Secure Apps or use App Password)
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
     try:
-        sender_email = config_vars["sender_email"]
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
-        server.login(sender_email, APP_EMAIL_PASSWORD)
+        server.login(APP_EMAIL_ADDRESS, APP_EMAIL_PASSWORD)
     except Exception as e:
-        print(f"Failed to connect to smtp server {e}")
+        return f"Failed to connect to smtp server {e}"
 
-    for receiver in config_vars["recievers"]:
+    recievers_data = request.json
+    for receiver in recievers_data["recievers"]:
         subject = f"Lembrete de Pagamento - {receiver['name']}"
         body = f"""
         Olá {receiver['name']}, hoje é o dia de fechamento da minha fatura.
@@ -39,10 +43,10 @@ def send_email(request):
         """
         msg = MIMEText(body)
         msg["Subject"] = subject
-        msg["From"] = sender_email
-        msg["To"] = ", ".join(receiver['emails'])
+        msg["From"] = APP_EMAIL_ADDRESS
+        msg["To"] = ", ".join(receiver["emails"])
         try:
-            server.sendmail(sender_email, receiver['emails'], msg.as_string())
+            server.sendmail(APP_EMAIL_ADDRESS, receiver["emails"], msg.as_string())
             server.quit()
             return "Email sent successfully"
         except Exception as e:
