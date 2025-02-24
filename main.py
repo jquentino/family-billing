@@ -29,7 +29,7 @@ def send_email(request: Request) -> typing.ResponseReturnValue:
         body = f"""
         Olá {receiver['name']}, hoje é o dia de fechamento da minha fatura.
         
-        Você tem até o dia 02/{datetime.now().month} para pagar o que me deve.
+        Você tem até o dia 02/{datetime.now().month + 1} para pagar o que me deve.
         
         Item(s) comprados com meu cartão: {','.join(receiver['items'])}
         
