@@ -2,6 +2,8 @@
 
 This project is a microservice designed to charge family members who have made purchases on your credit card. It is developed to run as a cloud function on Google Cloud Platform (GCP).
 
+> **Note**: Despite being a simple project, it is a great opportunity to get started with GCP and learn about deploying microservices.
+
 ---
 
 ## Running the Family Billing Microservice Locally
@@ -77,6 +79,8 @@ curl -X POST http://localhost:8080 \
 ---
 
 ## Deploying the Microservice to Cloud Run
+
+Deploying this microservice to Cloud Run allows you to take advantage of a fully managed serverless platform. Cloud Run handles scaling, security, and infrastructure, enabling you to focus on your application logic.
 
 ### 1. Fork the Project
 
