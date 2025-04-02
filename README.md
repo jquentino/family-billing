@@ -1,6 +1,51 @@
 # Family Billing Microservice
 
-This project is a microservice designed to charge family members who have made purchases on your credit card. It is developed to run as a cloud function on Google Cloud Platform (GCP).
+This project is a microservice designed to charge family members who have made purchases on your credit card. It processes a JSON request containing details of the receivers, their purchases, and the total amount owed, and sends an email to each receiver with the billing details. The service is developed to run as a cloud function on Google Cloud Platform (GCP).
+
+### Request Format
+
+The microservice expects a POST request with the following JSON payload:
+
+```json
+{
+    "recievers": [
+        {
+            "name": "John Doe",
+            "emails": ["john.doe@example.com"],
+            "items": ["item1", "item2"],
+            "payment_day": "2",
+            "value": "100.00",
+            "lang": "en"
+        }
+    ]
+}
+```
+Languages available:
+    - "en": English
+    - "pt": Portuguese
+
+### Email Sent to Receivers
+
+For each receiver, the service sends an email with the following format:
+
+```
+Subject: Payment Reminder - <name>
+
+Hello <name>, today is the closing day of my bill.
+            
+You have until the day <payment_day>/<next_month> to pay what you owe me.
+
+Item(s) purchased with my card: <items>
+
+Total amount: <value>
+
+My pix key for payment is: <PIX_KEY>
+
+If you have already made the payment, please disregard this message.
+
+This is an automated message, do not reply to this email.
+```
+
 
 > **Note**: Despite being a simple project, it is a great opportunity to get started with GCP and learn about deploying microservices.
 
