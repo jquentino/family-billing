@@ -1,10 +1,10 @@
 import os
 import smtplib
-from datetime import datetime
 from email.mime.text import MIMEText
 
 import functions_framework
 from flask import Request, typing
+from templates import content_generators
 
 APP_EMAIL_ADDRESS = os.getenv("APP_EMAIL_ADDRESS")
 APP_EMAIL_PASSWORD = os.getenv("APP_EMAIL_PASSWORD")
@@ -25,22 +25,16 @@ def send_email(request: Request) -> typing.ResponseReturnValue:
 
     recievers_data = request.json
     for receiver in recievers_data["recievers"]:
-        subject = f"Lembrete de Pagamento - {receiver['name']}"
-        body = f"""
-        Olá {receiver['name']}, hoje é o dia de fechamento da minha fatura.
-        
-        Você tem até o dia 02/{datetime.now().month + 1} para pagar o que me deve.
-        
-        Item(s) comprados com meu cartão: {','.join(receiver['items'])}
-        
-        Valor total: {receiver['value']}
-
-        Meu pix é: {PIX_KEY}
-
-        Se já realizou o pagamento, desconsidere essa mensagem.
-
-        Esta é uma mensagem automática, não responda à este email.
-        """
+        lang = receiver.get("lang", "en")
+        content_gen = content_generators[lang]
+        subject = content_gen.subject(receiver["name"])
+        body = content_gen.body(
+            name=receiver["name"],
+            payment_day=receiver.get("payment_day", 2),
+            items=receiver["items"],
+            value=receiver["value"],
+            pix_key=PIX_KEY,
+        )
         msg = MIMEText(body)
         msg["Subject"] = subject
         msg["From"] = APP_EMAIL_ADDRESS
